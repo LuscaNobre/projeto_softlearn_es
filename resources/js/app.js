@@ -205,3 +205,71 @@ function checkDiagramSolution(jsPlumbInstance, canvasElement) {
         return { isCorrect: false, message: "O diagrama está incorreto. As entidades principais não estão conectadas à associação N:M corretamente." };
     }
 }
+
+
+// --- Lógica de Interação do Modo Escuro (Adicionada) ---
+
+document.addEventListener('DOMContentLoaded', () => {
+    const htmlElement = document.documentElement;
+    const toggleButton = document.getElementById('theme-toggle');
+    const sunIcon = document.getElementById('sun-icon');
+    const moonIcon = document.getElementById('moon-icon');
+
+    // Função auxiliar para atualizar a UI do botão (Sol/Lua)
+    const updateIcons = (isDark) => {
+        if (sunIcon && moonIcon) {
+            if (isDark) {
+                // Se está no modo Escuro, mostre a Lua (moon) e esconda o Sol (sun)
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                // Se está no modo Claro, mostre o Sol (sun) e esconda a Lua (moon)
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+        }
+    };
+
+    // 1. Sincronização Inicial:
+    // Garante que o ícone inicial esteja correto, baseado na classe 'dark' 
+    // que já foi aplicada pelo script inline no <head>
+    updateIcons(htmlElement.classList.contains('dark'));
+
+    // 2. Lógica de Alternância (No Clique)
+    if (toggleButton) {
+        toggleButton.addEventListener('click', () => {
+            let newTheme;
+            let settings = {};
+            const stored = localStorage.getItem('softlearn.settings');
+            
+            // Tenta carregar as configurações existentes
+            if (stored) {
+                try {
+                    settings = JSON.parse(stored);
+                } catch (e) {
+                    console.error("Erro ao parsear settings:", e);
+                }
+            }
+
+            // Alternar a classe 'dark' no <html>
+            if (htmlElement.classList.contains('dark')) {
+                // Se estava Dark, vai para Light
+                htmlElement.classList.remove('dark');
+                newTheme = 'light';
+            } else {
+                // Se estava Light (ou sistema), vai para Dark
+                htmlElement.classList.add('dark');
+                newTheme = 'dark';
+            }
+            
+            // 3. Atualizar ícones e Salvar a Preferência
+            updateIcons(newTheme === 'dark');
+
+            // Salva o novo tema na estrutura de settings que você já usa
+            settings.theme = newTheme;
+            localStorage.setItem('softlearn.settings', JSON.stringify(settings));
+        });
+    }
+});
+
+// --- Fim da Lógica de Modo Escuro ---
